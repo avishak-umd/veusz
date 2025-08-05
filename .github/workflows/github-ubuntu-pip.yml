@@ -50,5 +50,5 @@ jobs:
     - name: Upload strace artifacts
       uses: actions/upload-artifact@v4
       with:
-          name: strace-logs
-          path: ${{ env.STRACE_OUT }}
+        name: strace-logs
+        path: strace-logs/

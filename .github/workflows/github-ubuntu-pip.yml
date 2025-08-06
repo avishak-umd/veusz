@@ -1,49 +1,50 @@
-# Veusz build using PyPI packages on Ubuntu
-
-name: Ubuntu build using pip packages
+name: Manual build binary on Linux (x86-64)
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: 'ubuntu-22.04'
+
     steps:
     - uses: actions/checkout@v4
-    - name: Enable strace
-      uses: clonedSemicolon/setup-strace@v8
-    - name: Try manual strace on a test command
-      run: |
-        echo "📌 Trying manual strace..."
-        mkdir -p strace-logs
-        strace -tt -f -o strace-logs/manual.log bash -c "echo Hello"
-        echo "🧾 Manual strace output:"
-        cat strace-logs/manual.log || echo "❌ Failed to create strace log"
-    - name: Set up Python 3.13
+    - uses: clonedSemicolon/setup-strace@v11
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.13.3'
+        cache: 'pip'
     - name: Upgrade pip
       run : |
-        python -V
-        python -m pip install --upgrade pip
+        python3 -m pip install --upgrade pip
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
         cache: 'true'
-        cache-key-prefix: 'qt-ubuntu-v3'
+        cache-key-prefix: 'qt-ubuntu-binary-v1'
         version: '6.9.1'
+        modules: 'qtimageformats'
         setup-python: false
-    - name: Install Python dependencies
+    - name: Install PyQt
+      run: |
+        pip3 -v install setuptools sip packaging PyQt_builder
+        pip3 -v install --config-settings --confirm-license= --no-binary :all: PyQt6
+    - name: Install numpy
+      run: |
+        pip3 -v install Cython ninja meson-python
+        pip3 -v install -Csetup-args=-Dblas= -Csetup-args=-Dlapack= --no-binary :all: numpy
+    - name: Install other modules
       run: |
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Build extensions
+        pip3 install iminuit
+        pip3 install https://github.com/jeremysanders/pyemf3/archive/master.zip
+        pip3 install pyinstaller
+    - name: Build Veusz extensions
       run: |
-        python setup.py build_ext --inplace
+        python3 setup.py build_ext --inplace
+        cp -p build/lib*/veusz/helpers/*.so veusz/helpers
     - name: Run tests
       env:
         LD_LIBRARY_PATH: ${{ env.QT_ROOT_DIR }}/lib:{{ env.LD_LIBRARY_PATH }}
@@ -51,7 +52,14 @@ jobs:
         VEUSZ_INPLACE_TEST: 1
       run: |
         tests/runselftest.py
-
+    - name: Build binary with pyinstaller
+      run: |
+        pyinstaller support/veusz_linux_pyinst.spec
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-binary
+        path: tar/
     - name: Upload strace artifacts
       uses: actions/upload-artifact@v4
       with:

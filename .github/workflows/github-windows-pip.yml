@@ -41,13 +41,13 @@ jobs:
       run: |
         set QT_QPA_PLATFORM=minimal
         set VEUSZ_INPLACE_TEST=1
+        python tests/runselftest.py
+      env:
+        VEUSZ_INPLACE_TEST: '1'
+        VEUSZ_REMOVE_FROM_ENV: 'QT_PLUGIN_PATH QML2_IMPORT_PATH'
 
     - name: Upload strace artifacts
       uses: actions/upload-artifact@v4
       with:
         name: strace-logs
         path: strace-logs/
-        python tests/runselftest.py
-      env:
-        VEUSZ_INPLACE_TEST: '1'
-        VEUSZ_REMOVE_FROM_ENV: 'QT_PLUGIN_PATH QML2_IMPORT_PATH'

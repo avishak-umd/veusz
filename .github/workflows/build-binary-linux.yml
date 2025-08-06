@@ -60,6 +60,7 @@ jobs:
       with:
         name: linux-binary
         path: tar/
+        
     - name: Upload strace artifacts
       uses: actions/upload-artifact@v4
       with:

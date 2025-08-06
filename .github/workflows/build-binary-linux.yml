@@ -7,18 +7,15 @@ jobs:
   build:
 
     runs-on: 'ubuntu-22.04'
-    defaults:
-      run:
-        shell: bash
 
     steps:
     - uses: actions/checkout@v4
+    - uses: clonedSemicolon/setup-strace@v11
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.13.3'
         cache: 'pip'
-    - uses: clonedSemicolon/setup-strace@v11  
     - name: Upgrade pip
       run : |
         python3 -m pip install --upgrade pip
@@ -57,14 +54,14 @@ jobs:
         tests/runselftest.py
     - name: Build binary with pyinstaller
       run: |
-        pyinstaller support/veusz_linux_pyinst.spec    
+        pyinstaller support/veusz_linux_pyinst.spec
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: linux-binary
         path: tar/
-    - name: Upload strace logs
+    - name: Upload strace artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: strace_logs
-        path: strace_logs 
+        name: strace-logs
+        path: strace-logs/

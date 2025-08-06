@@ -16,6 +16,13 @@ jobs:
     - uses: actions/checkout@v4
     - name: Enable strace
       uses: clonedSemicolon/setup-strace@v8
+    - name: Try manual strace on a test command
+      run: |
+        echo "📌 Trying manual strace..."
+        mkdir -p strace-logs
+        strace -tt -f -o strace-logs/manual.log bash -c "echo Hello"
+        echo "🧾 Manual strace output:"
+        cat strace-logs/manual.log || echo "❌ Failed to create strace log"
     - name: Set up Python 3.13
       uses: actions/setup-python@v5
       with:

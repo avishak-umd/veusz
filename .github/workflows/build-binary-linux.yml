@@ -18,7 +18,7 @@ jobs:
       with:
         python-version: '3.13.3'
         cache: 'pip'
-    - uses: clonedSemicolon/setup-strace@v8    
+    - uses: clonedSemicolon/setup-strace@v11  
     - name: Upgrade pip
       run : |
         python3 -m pip install --upgrade pip
@@ -57,14 +57,14 @@ jobs:
         tests/runselftest.py
     - name: Build binary with pyinstaller
       run: |
-        pyinstaller support/veusz_linux_pyinst.spec
-    - name: Upload strace logs
-      uses: actions/upload-artifact@v4
-      with:
-        name: strace_logs
-        path: strace_logs     
+        pyinstaller support/veusz_linux_pyinst.spec    
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: linux-binary
         path: tar/
+    - name: Upload strace logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: strace_logs
+        path: strace_logs 

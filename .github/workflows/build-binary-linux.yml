@@ -10,7 +10,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: clonedSemicolon/setup-strace@v11
+    - uses: clonedSemicolon/setup-strace@v13
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -64,5 +64,5 @@ jobs:
     - name: Upload strace artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: strace-logs
-        path: strace-logs/
+          name: strace-logs-${{ github.job }}-${{ matrix.flavor || 'lint' }}-${{ github.run_id }}-${{ github.run_attempt }}-${{ strategy.job-index || 0 }}
+          path: /home/runner/strace_logs/
